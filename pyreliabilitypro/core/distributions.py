@@ -2,6 +2,7 @@
 import numpy as np
 import scipy.stats as stats
 from typing import Union
+from typing import List, Tuple, Optional
 
 def weibull_pdf(
     x: Union[float, np.ndarray], beta: float, eta: float, gamma: float = 0.0
@@ -328,7 +329,7 @@ def weibull_hf(
         return hazard_values
 
 
-from typing import List, Tuple, Optional
+
 
 
 # pyreliabilitypro/core/distributions.py
