@@ -23,7 +23,7 @@ from .core.metrics import (
 )
 
 # Define the package version. This is a standard practice.
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # __all__ defines the public API of the package when a user does
 # `from pyreliabilitypro import *`. It's good practice to be explicit.

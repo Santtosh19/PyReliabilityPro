@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 # This is the core information about your package that will appear on PyPI.
 [project]
 name = "pyreliabilitypro"
-version = "0.1.0" # Your initial version number
+version = "0.2.0" # Your initial version number
 authors = [
     { name = "Santtosh Muniyandy", email = "santtosh6783@gmail.com" },
 ]
