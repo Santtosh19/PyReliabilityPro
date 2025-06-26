@@ -34,19 +34,19 @@ jobs:
 
       # --- THIS IS THE STEP YOU WILL UNCOMMENT FOR YOUR FIRST TEST ---
       # This step publishes to TestPyPI. It's a "dry run" for your first release.
-      - name: Publish package to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          # Use the API token you created for TestPyPI and stored as a GitHub secret
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          # Specify the TestPyPI repository URL
-          repository_url: https://test.pypi.org/legacy/
+      #- name: Publish package to TestPyPI
+      #  uses: pypa/gh-action-pypi-publish@release/v1
+      #  with:
+      #    # Use the API token you created for TestPyPI and stored as a GitHub secret
+      #    password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      #    # Specify the TestPyPI repository URL
+      #    repository_url: https://test.pypi.org/legacy/
 
       # --- THIS STEP SHOULD BE COMMENTED OUT FOR YOUR FIRST TEST ---
       # After you confirm TestPyPI works, you will comment out the step above
       # and uncomment this one for your real release.
-      # - name: Publish package to PyPI
-      #   uses: pypa/gh-action-pypi-publish@release/v1
-      #   with:
-      #     # Use the API token for the real PyPI stored as a GitHub secret
-      #     password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish package to PyPI
+         uses: pypa/gh-action-pypi-publish@release/v1
+         with:
+           # Use the API token for the real PyPI stored as a GitHub secret
+           password: ${{ secrets.PYPI_API_TOKEN }}
