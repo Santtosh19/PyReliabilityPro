@@ -29,16 +29,14 @@ __version__ = "0.1.0"
 # `from pyreliabilitypro import *`. It's good practice to be explicit.
 __all__ = [
     # Functions from distributions module
-    'weibull_pdf',
-    'weibull_cdf',
-    'weibull_sf',
-    'weibull_hf',
-    'weibull_fit',
-
+    "weibull_pdf",
+    "weibull_cdf",
+    "weibull_sf",
+    "weibull_hf",
+    "weibull_fit",
     # Functions from metrics module
-    'calculate_mttf_exponential',
-    'weibull_mttf',
-    
+    "calculate_mttf_exponential",
+    "weibull_mttf",
     # Package version
-    '__version__',
+    "__version__",
 ]

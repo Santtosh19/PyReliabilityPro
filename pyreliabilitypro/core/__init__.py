@@ -25,6 +25,11 @@ from .metrics import (
 
 
 __all__ = [
-    'weibull_pdf', 'weibull_cdf', 'weibull_sf', 'weibull_hf', 'weibull_fit',
-    'calculate_mttf_exponential', 'weibull_mttf',
+    "weibull_pdf",
+    "weibull_cdf",
+    "weibull_sf",
+    "weibull_hf",
+    "weibull_fit",
+    "calculate_mttf_exponential",
+    "weibull_mttf",
 ]
