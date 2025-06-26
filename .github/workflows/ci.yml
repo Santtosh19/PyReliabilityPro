@@ -59,3 +59,25 @@ jobs:
         # to your GitHub repository named CODECOV_TOKEN, then uncomment the lines below.
         # with:
         #   token: ${{ secrets.CODECOV_TOKEN }}
+
+      # --- ADD THE FOLLOWING NEW STEPS FOR DOCKER ---
+
+      - name: Log in to GitHub Container Registry
+        # This step should only run on pushes to the main branch, not on pull requests.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        # This step should also only run on pushes to the main branch.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
