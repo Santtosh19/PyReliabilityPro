@@ -1,0 +1,224 @@
+MTTF:
+The concept of Mean Time To Failure (MTTF) is a very high-level and widely applicable 
+reliability metric.
+What it represents: On average, how long a non-repairable item or component is expected
+ to operate before it fails.
+Where it's used:
+Product Design & Development: To set reliability targets, compare design alternatives.
+Warranty Analysis: To estimate how many items might fail within a warranty period.
+Maintenance Planning (for Repairable Systems - see MTBF): Although this function calculates 
+MTTF (for non-repairable), the concept is related to MTBF (Mean Time Between Failures) for
+repairable systems, which directly influences maintenance schedules and spare parts provisioning.
+Risk Assessment: Higher MTTF generally means lower risk of early failure.
+System Reliability Prediction: The MTTF of individual components can be used to estimate the 
+reliability of a larger system they are part of.
+Consumer Electronics, Automotive, Aerospace, Industrial Equipment: Almost any industry that 
+produces or uses equipment that can fail cares about MTTF or similar metrics.
+The function calculate_mttf_exponential is specific in two ways:
+It assumes an exponential distribution of failures. The exponential distribution implies a 
+constant failure rate. This is a simplifying assumption often used when:
+There's no strong evidence for wear-out (increasing failure rate) or infant mortality 
+(decreasing failure rate).
+Looking at the "useful life" period of a component where the failure rate is roughly constant.
+Dealing with complex systems where individual component failures occur randomly.
+It calculates the sample mean from the provided failure_times. For an exponential distribution, 
+the sample mean is indeed the Maximum Likelihood Estimator (MLE) of the true MTTF. So, given the
+ data and the assumption, this is the correct way to estimate MTTF.
+Is it low-level?
+The implementation detail of summing numbers and dividing is mathematically "low-level" 
+(simple arithmetic).
+The concept and application of the result (MTTF) are very "high-level" and important in 
+reliability engineering.
+Bringing it up?
+Our toolkit will become "higher-level" by:
+Adding more sophisticated analyses: Like Weibull analysis, which doesn't assume a constant 
+failure rate and can model wear-out or infant mortality. Weibull gives you more insight
+ (shape parameter β, scale parameter η).
+Handling different data types: Maybe censored data (where some items haven't failed yet 
+when the observation stops).
+Providing more outputs: Not just a single MTTF number, but perhaps confidence intervals 
+around that estimate, or plots.
+Making it easier to use: With good documentation, maybe a simple CLI or even a very basic
+ web UI wrapper in the far future.
+So, this first function is a fundamental building block. It calculates an important 
+high-level metric but uses a specific, simpler statistical assumption. 
+As we add more functions, the toolkit will become more versatile and capable of more 
+nuanced, "higher-level" (in terms of analytical depth) analyses.
+
+-----------------------------------------------------------------------------------------------------
+PDF: Describes the relative likelihood of failure around specific time points. 
+Good for seeing where failures cluster.
+
+
+Probability Density Function (PDF) - weibull_pdf:
+Symbol: Often denoted as f(t) or p(t).
+What it Represents (for a continuous random variable like time-to-failure):
+The PDF describes the relative likelihood that a continuous random variable 
+(like the time-to-failure of a component, T) will take on a specific value or fall within a 
+very narrow range of values.
+Crucially, for a continuous variable, the probability of it being exactly equal to a single 
+specific value is technically zero. For example, P(T = 100.0000... hours) = 0.
+Instead, the PDF gives us a density. The area under the PDF curve between two points
+ (say, t1 and t2) gives the probability that the random variable will fall within that
+  range: P(t1 ≤ T ≤ t2) = ∫ f(t) dt (integral of f(t) from t1 to t2).
+Higher PDF value at a point t means that values around t are relatively more likely to occur.
+In the Context of Weibull and Reliability (Time-to-Failure T):
+weibull_pdf(t, beta, eta, gamma) gives you the value of the Weibull probability density 
+function at a specific time t, given the parameters beta (shape), eta (scale), and gamma (location).
+Interpretation:
+If weibull_pdf(100, ...) is higher than weibull_pdf(200, ...), it suggests that failures
+ are relatively more likely to occur around 100 hours than around 200 hours, for that specific
+  Weibull distribution.
+The shape of the PDF curve tells you a lot about the failure characteristics.
+Is it peaked early? (Suggests early failures).
+Is it peaked later? (Suggests wear-out failures dominate after some operational time).
+Is it spread out or tightly clustered?
+Units: The PDF value itself has units that are "probability per unit of the random variable.
+" So, if time is in hours, the PDF is in "probability per hour." This is why its value can be 
+greater than 1 (unlike a direct probability).
+Visualizing the PDF:
+It's a curve plotted with time (t) on the x-axis and the PDF value f(t) on the y-axis.
+The total area under the entire PDF curve (from its minimum possible time to infinity) is 
+always equal to 1 (representing 100% probability that failure will occur at some time).
+The curve is always non-negative (f(t) ≥ 0).
+Example Usage of the weibull_pdf function output:
+Primarily for plotting and visualizing the distribution of failure times.
+Used in some statistical calculations or as a component in more complex reliability models
+ (e.g., in likelihood functions for parameter estimation).
+ ---------------------------------------------------------------------------------------------------
+CDF: Gives the accumulated probability of failure occurring by a specific time. 
+Good for warranty, unreliability at time t.
+
+
+Cumulative Distribution Function (CDF) - weibull_cdf
+Symbol: Often denoted as F(t).
+What it Represents:
+The CDF gives the probability that a random variable T will take on a value less than 
+or equal to a specific value t.
+Mathematically, F(t) = P(T ≤ t).
+It's the integral of the PDF from the minimum possible value up to t: F(t) = ∫ f(x) dx 
+(integral from -∞, or gamma in our case, up to t).
+In the Context of Weibull and Reliability (Time-to-Failure T):
+weibull_cdf(t, beta, eta, gamma) gives you the probability that an item, following that 
+specific Weibull distribution, will fail by or before time t.
+This is often called the "probability of failure" by time t, or "unreliability" at time t.
+Interpretation:
+If weibull_cdf(100, ...) = 0.05, it means there is a 5% probability that the item will fail by 
+100 hours of operation.
+If weibull_cdf(1000, ...) = 0.632 (approximately, if 1000 is the characteristic life eta), 
+it means there's a 63.2% chance the item will fail by 1000 hours.
+Properties of CDF:
+F(t) always ranges from 0 to 1 (inclusive), as it's a probability.
+F(t) is non-decreasing: F(t1) ≤ F(t2) if t1 < t2. (The probability of failing by a later time 
+cannot be less than the probability of failing by an earlier time).
+As t approaches the minimum possible value (e.g., gamma, or -∞ theoretically), F(t) approaches 0.
+As t approaches infinity, F(t) approaches 1.
+Visualizing the CDF:
+It's a curve plotted with time (t) on the x-axis and the CDF value F(t) (probability) on the y-axis.
+The curve starts at 0 (or near 0 for practical purposes) on the y-axis and rises to 1 
+(or near 1) as time increases.
+The "steepness" of the CDF curve indicates how quickly failures are accumulating.
+Example Usage of the weibull_cdf function output:
+Warranty Analysis: "What's the probability an item fails within the 1-year warranty period?"
+ -> Calculate CDF at 1 year.
+Risk Assessment: "What's the chance of failure before the next scheduled maintenance at 
+500 hours?" -> Calculate CDF at 500 hours.
+B-Life Calculation: The B10 life is the time by which 10% of the population is expected to fail. 
+This means finding t such that CDF(t) = 0.10. (This uses the inverse of the CDF, called the PPF or 
+quantile function).
+Plotting the "unreliability curve."
+-----------------------------------------------------------------------------------------------------
+SF (Reliability): Gives the probability of successfully operating beyond a specific time. 
+Good for reliability targets.
+
+
+Survival Function (SF) - Implemented by weibull_sf
+Other Names: Reliability Function, R(t)
+Symbol: Commonly S(t) or R(t).
+Core Definition: The Survival Function at a specific time t gives the probability that an 
+item will operate successfully (i.e., survive) beyond time t.
+Mathematical Representation:
+S(t) = P(T > t)
+Where T is the random variable representing the time-to-failure of the item.
+Relationship to CDF: The Survival Function is the complement of the Cumulative Distribution 
+Function (CDF). Since the CDF, F(t), is the probability of failing by time t, the probability 
+of not failing by time t (i.e., surviving beyond t) is:
+S(t) = 1 - F(t) = 1 - CDF(t)
+In the Context of Weibull and Reliability:
+weibull_sf(t, beta, eta, gamma) calculates the probability that an item, whose failure behavior
+ is described by that specific Weibull distribution, will still be operational after t units of time.
+Interpretation:
+If weibull_sf(500, ...) = 0.90, it means there is a 90% probability that the item will survive
+ longer than 500 hours. This also means there's a 10% chance it would have failed by 500 hours
+  (CDF = 0.10).
+Reliability engineers often aim for high values of S(t) for critical mission times.
+Properties of SF:
+S(t) always ranges from 0 to 1 (inclusive), as it's a probability.
+S(t) is non-increasing: S(t1) ≥ S(t2) if t1 < t2. (The probability of surviving longer cannot
+ increase as time goes on).
+S(0) = 1 (or S(gamma) = 1 for a 3-parameter Weibull): At the very beginning (or before any 
+failure is possible), the probability of survival is 100%.
+As t approaches infinity, S(t) approaches 0 (eventually, all items in a population that are 
+prone to failure will fail).
+Visualizing the SF:
+A curve plotted with time (t) on the x-axis and S(t) (probability) on the y-axis.
+It typically starts at 1 on the y-axis and decreases towards 0 as time increases.
+This is often called the "Reliability Curve."
+Purpose / Why it's Important:
+Directly quantifies the reliability of a product at a specific point in time.
+Used to set reliability targets (e.g., "99% reliability at 1000 hours").
+Essential for comparing the reliability of different designs or components.
+Input for system reliability calculations (e.g., for series or parallel systems).
+-------------------------------------------------------------------------------------------------------------
+HF (Failure Rate): Describes the changing instantaneous risk of failure for items that are
+ currently surviving. Good for understanding failure mechanisms and guiding maintenance.
+
+
+Hazard Function (HF) - Implemented by weibull_hf
+Other Names: Instantaneous Failure Rate, Hazard Rate, Force of Mortality, h(t), λ(t)
+Symbol: Commonly h(t) or λ(t) (lambda of t).
+Core Definition: The Hazard Function at time t represents the instantaneous rate at 
+which failures are occurring among the survivors at that specific time t. It's the conditional probability of failure in a very small interval after t, given survival up to t, per unit of time.
+More formally: h(t) = lim (Δt → 0) [ P(t ≤ T < t + Δt | T ≥ t) / Δt ]
+P(t ≤ T < t + Δt | T ≥ t): Probability of failing in the small interval [t, t + Δt)
+ GIVEN that the item has survived up to time t.
+Dividing by Δt makes it a rate.
+Relationship to PDF and SF: A more practical formula is:
+h(t) = f(t) / S(t)
+Where f(t) is the PDF (Probability Density Function) and S(t) is the Survival Function.
+The PDF f(t) gives the overall density of failures around time t from the original population.
+The SF S(t) tells us the proportion of the original population that is still surviving at time t 
+(and thus is "at risk" of failing).
+So, f(t) / S(t) normalizes the failure density by the surviving population, giving the failure
+ rate among those currently surviving.
+In the Context of Weibull and Reliability:
+weibull_hf(t, beta, eta, gamma) calculates this instantaneous failure rate for the specified
+ Weibull distribution.
+Interpretation - The Shape is Key (determined by beta for Weibull):
+beta < 1 (Decreasing Hazard Rate - DFR): The failure rate decreases over time. This typically 
+indicates "infant mortality" – weak items fail early, and those that survive are more robust,
+ so their instantaneous chance of failure drops. Think of electronic components after burn-in.
+beta = 1 (Constant Hazard Rate - CFR): The failure rate is constant over time. This means the
+likelihood of failure in the next instant is the same regardless of how long the item has already operated (given it has survived). This is the characteristic of the Exponential distribution and often applies to items failing due to purely random external events, or during their "useful life" period after infant mortality and before wear-out.
+beta > 1 (Increasing Hazard Rate - IFR): The failure rate increases over time. This indicates 
+"wear-out" or aging – as items get older, they are more likely to fail in the next instant.
+Think of mechanical parts that fatigue or corrode.
+Units: The Hazard Function has units of "failures per unit time" (e.g., failures per hour, 
+failures per million hours). Its value can be greater than 1, as it is a rate, not a direct
+ probability over a long interval.
+Visualizing the HF:
+A curve plotted with time (t) on the x-axis and h(t) (failure rate) on the y-axis.
+The shape of this curve directly shows the DFR, CFR, or IFR behavior.
+This curve is often part of the famous "Bathtub Curve" (which combines DFR, then CFR, 
+then IFR phases over a product's life).
+Purpose / Why it's Important:
+Provides deep insight into the nature of failures – are they due to early defects,
+ random events, or aging?
+Crucial for Maintenance Decisions:
+IFR suggests preventative maintenance might be effective (replace before the failure rate 
+gets too high).
+CFR suggests that replacing an item based on its age won't improve reliability (it's as 
+likely to fail right after replacement as an old one was, given random causes).
+DFR suggests "if it ain't broke, don't fix it" – surviving items are better.
+Helps in identifying phases of a product's life (infant mortality, useful life, wear-out).
+Used in accelerated life testing to understand how stressors affect the failure mechanisms.

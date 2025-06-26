@@ -1,0 +1,10 @@
+# For testing
+pytest
+pytest-cov
+
+# For linting & formatting
+flake8
+black
+mypy
+scipy-stubs
+numpy==2.3.0

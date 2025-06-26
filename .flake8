@@ -1,0 +1,23 @@
+[flake8]
+
+# Comma-separated list of directories to exclude from linting.
+# This is crucial for ignoring your virtual environment and other generated folders.
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    .pytest_cache,
+    .eggs,
+    build,
+    dist
+
+# Set the maximum line length to 88 characters, which is a common modern standard
+# (and matches the default for the 'black' code formatter). This helps with
+# the "E501 line too long" errors for lines that are between 79 and 88 characters.
+max-line-length = 88
+
+# (Optional) You can ignore specific error codes if you have a good reason.
+# For example, Black formatter sometimes conflicts with E203 (whitespace before ':').
+# Let's add that one in preparation. And W503 (line break before binary operator)
+# is often ignored as a newer style prefers the break before the operator.
+ignore = E203, W503
