@@ -4,7 +4,7 @@ pytest-cov
 
 # For linting & formatting
 flake8
-black
-mypy
-numpy>=1.21,<1.27
+numpy==1.22.4 
 scipy>=1.7
+black>=23.0 # Use a recent version of black
+mypy>=1.0   # Use a recent version of mypy
