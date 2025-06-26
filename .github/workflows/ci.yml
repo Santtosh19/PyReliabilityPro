@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     
     strategy:
-      fail-fast: false # If one matrix job fails, others will continue
+      fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
@@ -27,9 +27,8 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }} 
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
-     
 
       - name: Install dependencies
         run: |
@@ -40,6 +39,14 @@ jobs:
       - name: Lint with Flake8
         run: |
           flake8 . --count --show-source --statistics
+
+      - name: Check formatting with Black
+        run: |
+          black --check .
+
+      - name: Static type checking with MyPy
+        run: |
+          mypy pyreliabilitypro --ignore-missing-imports
 
       - name: Run tests with Pytest
         run: |

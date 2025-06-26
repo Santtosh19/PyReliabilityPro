@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 from pyreliabilitypro.core.distributions import weibull_pdf
-from pyreliabilitypro.core.distributions import weibull_cdf  
+from pyreliabilitypro.core.distributions import weibull_cdf
 from pyreliabilitypro.core.distributions import weibull_sf
 from pyreliabilitypro.core.distributions import weibull_hf
 from pyreliabilitypro.core.distributions import weibull_fit
@@ -11,17 +11,18 @@ import scipy.stats as stats
 
 
 # ---- Test Case 1: Basic 2-parameter Weibull ----
-# Lines 7-12: Comments explaining the source of 
+# Lines 7-12: Comments explaining the source of
 # expected values or manual calculation.
-# For x=100, β=2, η=100: 
+# For x=100, β=2, η=100:
 # PDF formula f(x) = (β/η) * (x/η)^(β-1) * exp(-(x/η)^β)
 # (2/100) * (100/100)^(2-1) * exp(-(100/100)^2) = 0.02 *
 #  1^1 * exp(-1^2) = 0.02 * exp(-1)
 # exp(-1) is approx 0.367879.
 #  So, 0.02 * 0.367879 = 0.00735758.
 
+
 def test_weibull_pdf_basic_2_parameter():
-    # What: A test for a simple case with a 
+    # What: A test for a simple case with a
     # scalar `x` and 2-parameter Weibull (gamma=0).
     beta = 2.0
     eta = 100.0
@@ -31,7 +32,7 @@ def test_weibull_pdf_basic_2_parameter():
     )
     assert weibull_pdf(x, beta, eta) == pytest.approx(expected_pdf, abs=1e-6)
     # Assert: Compares the result with the `expected_pdf`.
-    # `pytest.approx(..., abs=1e-6)`: 
+    # `pytest.approx(..., abs=1e-6)`:
     # Compares floats approximately with an absolute tolerance of 1e-6.
     # Useful because floating point math can have tiny precision errors.
 
@@ -56,8 +57,9 @@ def test_weibull_pdf_array_x_2_parameter():
 # ---- Test Cases 3 & 4 & 5: 3-Parameter Weibull (gamma != 0) ----
 # These tests explore scenarios with a non-zero location parameter `gamma`.
 
+
 def test_weibull_pdf_3_parameter_at_gamma_beta_gt_1():
-    # What: Test case for 3-parameter Weibull where x 
+    # What: Test case for 3-parameter Weibull where x
     # is exactly gamma, and beta > 1.
     # Why: For β > 1, the PDF is defined to be 0 at x = γ.
     beta = 2.5  # beta > 1
@@ -67,35 +69,35 @@ def test_weibull_pdf_3_parameter_at_gamma_beta_gt_1():
     # Expected PDF is 0
     assert weibull_pdf(x, beta, eta, gamma) == pytest.approx(0.0, abs=1e-9)
 
+
 def test_weibull_pdf_3_parameter_at_gamma_beta_eq_1():
     # What: Test case for 3-parameter Weibull where x is gamma, and beta = 1.
-    # Why: When β = 1, the Weibull distribution 
+    # Why: When β = 1, the Weibull distribution
     # reduces to an Exponential distribution
-    # (shifted by gamma). The PDF of an exponential 
+    # (shifted by gamma). The PDF of an exponential
     # distribution f(t) = λ * exp(-λt)
-    # at t=0 (which corresponds to x=gamma here, 
+    # at t=0 (which corresponds to x=gamma here,
     # since x' = x-gamma) is λ.
     # Here, λ (failure rate) for Weibull with β=1 is 1/η.
     beta = 1.0  # This makes it behave like an Exponential distribution
     eta = 100.0
     gamma = 50.0
     x = 50.0  # x is equal to gamma
-    expected_pdf = (
-        1.0 / eta
-    )  
-    # For an exponential, PDF at 
+    expected_pdf = 1.0 / eta
+    # For an exponential, PDF at
     # the start (t=0, or x=gamma) is 1/scale.
     assert weibull_pdf(x, beta, eta, gamma) == pytest.approx(expected_pdf, abs=1e-6)
 
+
 def test_weibull_pdf_3_parameter_above_gamma():
     # What: Tests a 3-parameter Weibull where x is greater than gamma.
-    # Why: To ensure the (x-gamma) shift is 
+    # Why: To ensure the (x-gamma) shift is
     # handled correctly by our function (via SciPy).
     beta = 2.0
     eta = 100.0
     gamma = 20.0
     x = 25.0  # x > gamma
-    # For a 3-parameter Weibull, f(x; β, η, γ) = f_2p(x-γ; β, η), 
+    # For a 3-parameter Weibull, f(x; β, η, γ) = f_2p(x-γ; β, η),
     # where f_2p is the 2-param PDF.
     # So we calculate expected using x' = x - gamma.
     x_prime = x - gamma  # x_prime = 5.0
@@ -109,6 +111,7 @@ def test_weibull_pdf_3_parameter_above_gamma():
 
 # ---- Test Cases for Input Validations ----
 
+
 def test_weibull_pdf_invalid_beta():
     # What: Tests that a ValueError is raised for non-positive beta.
     with pytest.raises(
@@ -119,6 +122,7 @@ def test_weibull_pdf_invalid_beta():
         ValueError, match="Shape parameter beta \\(β\\) must be greater than 0."
     ):
         weibull_pdf(x=100, beta=-1, eta=100)  # Test with another invalid beta
+
 
 def test_weibull_pdf_invalid_eta():
     # What: Tests for non-positive eta.
@@ -149,9 +153,10 @@ def test_weibull_pdf_x_less_than_gamma():
 
 
 # ---- Test Cases for Return Types ----
-# Why: To explicitly verify that our function 
+# Why: To explicitly verify that our function
 # returns a standard Python float for scalar input
 # and a NumPy ndarray for array input, as per its design.
+
 
 def test_weibull_pdf_returns_float_for_scalar_input():
     result = weibull_pdf(x=100.0, beta=2.0, eta=100.0)
@@ -171,7 +176,7 @@ def test_weibull_pdf_returns_ndarray_for_array_input():
 # 1. Basic test with known values (2-parameter Weibull, gamma=0)
 #    CDF(x) = 1 - exp(-(x/η)^β)
 #    For beta=2, eta=100:
-#    At x = eta (characteristic life), CDF = 1 - 
+#    At x = eta (characteristic life), CDF = 1 -
 #    exp(- (eta/eta)^beta ) = 1 - exp(-1^beta) = 1 - exp(-1)
 #    1 - exp(-1) is approx 1 - 0.367879 = 0.632121
 def test_weibull_cdf_basic_2_parameter_at_eta():
@@ -214,7 +219,7 @@ def test_weibull_cdf_array_x_2_parameter():
     )  # All CDF values should be in [0,1]
 
 
-# 3. Test CDF with location parameter gamma 
+# 3. Test CDF with location parameter gamma
 # (3-parameter Weibull)
 #    CDF for x < gamma should be 0.
 #    CDF for x = gamma should be 0.
@@ -227,7 +232,7 @@ def test_weibull_cdf_3_parameter_at_and_below_gamma():
     assert weibull_cdf(gamma, beta, eta, gamma) == pytest.approx(0.0, abs=1e-9)
     # Test at x < gamma
     assert weibull_cdf(gamma - 10, beta, eta, gamma) == pytest.approx(0.0, abs=1e-9)
-    # Test with an array including values below, 
+    # Test with an array including values below,
     # at, and above gamma
     x_arr = np.array([gamma - 20, gamma, gamma + 20])
     expected_cdfs_arr = np.array(
@@ -287,7 +292,7 @@ def test_weibull_cdf_returns_ndarray_for_array_input():
 
 # 1. Basic test with known values (2-parameter Weibull, gamma=0)
 #    SF(x) = exp(-(x/η)^β)
-#    At x = eta (characteristic life), SF = 
+#    At x = eta (characteristic life), SF =
 #    exp(- (eta/eta)^beta ) = exp(-1^beta) = exp(-1)
 #    exp(-1) is approx 0.367879. This is 1 - CDF_at_eta.
 def test_weibull_sf_basic_2_parameter_at_eta():
@@ -346,7 +351,7 @@ def test_weibull_sf_3_parameter_at_and_below_gamma():
     assert weibull_sf(gamma, beta, eta, gamma) == pytest.approx(1.0, abs=1e-9)
     # Test at x < gamma
     assert weibull_sf(gamma - 10, beta, eta, gamma) == pytest.approx(1.0, abs=1e-9)
-    # Test with an array including values below, 
+    # Test with an array including values below,
     # at, and above gamma
     x_arr = np.array([gamma - 20, gamma, gamma + 20])
     expected_sfs_arr = np.array(
@@ -413,7 +418,7 @@ def test_weibull_sf_returns_ndarray_for_array_input():
 
 # --- Test cases for weibull_hf ---
 
-# Hazard function h(x) = (beta/eta) * 
+# Hazard function h(x) = (beta/eta) *
 # ((x-gamma)/eta)**(beta-1) for x >= gamma
 # h(x) = 0 for x < gamma
 
@@ -423,7 +428,7 @@ def test_weibull_hf_basic_2_parameter():
     beta = 2.0  # IFR (Increasing Failure Rate)
     eta = 100.0
     x = 100.0
-    # h(100) = (2/100) * (100/100)^(2-1) 
+    # h(100) = (2/100) * (100/100)^(2-1)
     # = 0.02 * 1^1 = 0.02
     expected_hf = (beta / eta) * ((x / eta) ** (beta - 1.0))
     assert weibull_hf(x, beta, eta) == pytest.approx(expected_hf)
@@ -445,8 +450,8 @@ def test_weibull_hf_basic_2_parameter_beta_lt_1():
     beta = 0.5  # DFR (Decreasing Failure Rate)
     eta = 100.0
     x = 25.0  # (x/eta) = 0.25, beta-1 = -0.5
-    # h(25) = (0.5/100) * (25/100)^(-0.5) = 
-    # 0.005 * (0.25)^(-0.5) = 0.005 * (1/sqrt(0.25)) 
+    # h(25) = (0.5/100) * (25/100)^(-0.5) =
+    # 0.005 * (0.25)^(-0.5) = 0.005 * (1/sqrt(0.25))
     # = 0.005 * (1/0.5) = 0.005 * 2 = 0.01
     expected_hf = (beta / eta) * ((x / eta) ** (beta - 1.0))
     assert weibull_hf(x, beta, eta) == pytest.approx(expected_hf)
@@ -493,7 +498,7 @@ def test_weibull_hf_3_parameter_various_cases():
 
 
 # 4. Test HF relationship with PDF and SF: h(x) = f(x) / S(x)
-#    This test can be tricky due to 
+#    This test can be tricky due to
 #    potential division by zero if SF is very small.
 #    It's good to test where SF is reasonably > 0.
 def test_weibull_hf_relation_to_pdf_sf():
@@ -513,13 +518,13 @@ def test_weibull_hf_relation_to_pdf_sf():
                 expected_hf_from_definition, rel=1e-5
             )
         else:  # If SF is too small, check if HF is very large or if PDF is also ~0
-            if pdf_val < 1e-9:  
-    # Both PDF and SF are near zero
-                pass  
-    # HF could be NaN or some limit, tricky to 
-    #assert generic equality. Our direct formula should be more robust.
-            else:  
-    # PDF non-zero, SF zero -> HF should be infinite
+            if pdf_val < 1e-9:
+                # Both PDF and SF are near zero
+                pass
+            # HF could be NaN or some limit, tricky to
+            # assert generic equality. Our direct formula should be more robust.
+            else:
+                # PDF non-zero, SF zero -> HF should be infinite
                 assert hf_val_from_func == np.inf
 
 
@@ -616,7 +621,7 @@ def test_weibull_fit_3_parameter_basic():
     failure_data = stats.weibull_min.rvs(
         c=true_beta, loc=true_gamma, scale=true_eta, size=sample_size
     )
-    # Ensure all generated data is > 0 if we're 
+    # Ensure all generated data is > 0 if we're
     # not expecting negative gamma.
     # Or, if data can be <= gamma, fit function
     #  should handle it (SciPy's fit can sometimes).
@@ -625,7 +630,7 @@ def test_weibull_fit_3_parameter_basic():
     # Fit the data using our function, attempting to fit gamma
     est_beta, est_eta, est_gamma = weibull_fit(failure_data, fit_gamma=True)
 
-    # Tolerances might need to be larger for 
+    # Tolerances might need to be larger for
     # 3-parameter fits, especially for gamma.
     assert est_beta == pytest.approx(true_beta, rel=0.25)
     assert est_eta == pytest.approx(true_eta, rel=0.25)
@@ -642,11 +647,15 @@ def test_weibull_fit_3_parameter_basic():
 # THIS IS THE NEW, CORRECTED VERSION TO USE
 def test_weibull_fit_insufficient_data():
     # Test with an empty list
-    with pytest.raises(ValueError, match="At least two data points are required to fit a distribution."):
+    with pytest.raises(
+        ValueError, match="At least two data points are required to fit a distribution."
+    ):
         weibull_fit([])
-        
+
     # Test with a single data point
-    with pytest.raises(ValueError, match="At least two data points are required to fit a distribution."):
+    with pytest.raises(
+        ValueError, match="At least two data points are required to fit a distribution."
+    ):
         weibull_fit([100.0])
 
 

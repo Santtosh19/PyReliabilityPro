@@ -4,6 +4,7 @@ import scipy.stats as stats
 from typing import Union
 from typing import List, Tuple, Optional
 
+
 def weibull_pdf(
     x: Union[float, np.ndarray], beta: float, eta: float, gamma: float = 0.0
 ) -> Union[float, np.ndarray]:
@@ -18,7 +19,7 @@ def weibull_pdf(
                  Defaults to 0 for a 2-parameter Weibull.
 
     Args:
-        x: The value(s) at which to evaluate the PDF. 
+        x: The value(s) at which to evaluate the PDF.
         Can be a single float or a NumPy array.
         beta: The shape parameter (β > 0). Also known as k.
         eta: The scale parameter (η > 0). Also known as lambda (λ).
@@ -34,24 +35,20 @@ def weibull_pdf(
     """
     if beta <= 0:
         raise ValueError("Shape parameter beta (β) must be greater than 0.")
-        # Shape parameter β must be positive for 
+        # Shape parameter β must be positive for
         # the Weibull distribution to be well-defined.
 
     if eta <= 0:
         raise ValueError("Scale parameter eta (η) must be greater than 0.")
         # Scale parameter η must also be positive.
 
-    x_arr = np.asarray(
-        x
-    )  
-    if np.any(
-        x_arr < gamma
-    ): 
+    x_arr = np.asarray(x)
+    if np.any(x_arr < gamma):
         raise ValueError(
             f"All values of x must be greater than or equal to the location parameter gamma (γ={gamma}). Found x < gamma."
         )
 
-    #--- Calculation using SciPy's Weibull_min distribution ---
+    # --- Calculation using SciPy's Weibull_min distribution ---
     # This section explains the mapping from our chosen parameter names to SciPy's.
     # SciPy's `weibull_min` distribution maps parameters as follows:
     # - Its shape parameter `c` corresponds to our `beta` (β).
@@ -61,7 +58,7 @@ def weibull_pdf(
 
     pdf_values = stats.weibull_min.pdf(x_arr, c=beta, loc=gamma, scale=eta)
     # This is the core calculation.
-    # `stats.weibull_min`: Accesses the Weibull distribution 
+    # `stats.weibull_min`: Accesses the Weibull distribution
     # object within SciPy's stats module.
     # (The `_min` refers to it being for smallest extreme values, which is
     # the standard Weibull for lifetime analysis).
@@ -73,14 +70,14 @@ def weibull_pdf(
     # `loc=gamma`: Passes our `gamma` (location) as SciPy's location parameter `loc`.
     #              SciPy internally handles the `(x - gamma)` shift.
     #   `scale=eta`: Passes our `eta` (scale) as SciPy's scale parameter `scale`.
-    # The result, `pdf_values`, will be a NumPy array 
+    # The result, `pdf_values`, will be a NumPy array
     # containing the PDF value for each
-    # element in `x_arr`. If `x_arr` was a 
+    # element in `x_arr`. If `x_arr` was a
     # 0-dimensional array (from a scalar `x`), then
     # `pdf_values` will also be a 0-dimensional array.
-    # Why: If the user passed in a single number for `x`, 
+    # Why: If the user passed in a single number for `x`,
     # they likely expect a single number back,
-    # not a 0-dimensional NumPy array. 
+    # not a 0-dimensional NumPy array.
     # This makes the function more user-friendly.
     if isinstance(x, (int, float)):
         return float(pdf_values.item())
@@ -92,7 +89,7 @@ def weibull_cdf(
     x: Union[float, np.ndarray], beta: float, eta: float, gamma: float = 0.0
 ) -> Union[float, np.ndarray]:
     """
-    Calculates the Cumulative Distribution Function (CDF) 
+    Calculates the Cumulative Distribution Function (CDF)
     for the 2-parameter or
     3-parameter Weibull distribution.
 
@@ -102,23 +99,23 @@ def weibull_cdf(
     The 3-parameter Weibull distribution has:
     - beta (β): Shape parameter (k in scipy)
     - eta (η): Scale parameter (λ in some texts, 'scale' in scipy)
-    - gamma (γ): Location parameter (loc in scipy), threshold, 
+    - gamma (γ): Location parameter (loc in scipy), threshold,
     or failure-free life.
                  Defaults to 0 for a 2-parameter Weibull.
 
     Args:
-        x: The time(s) at which to evaluate the CDF. 
+        x: The time(s) at which to evaluate the CDF.
         Can be a single float or a NumPy array.
            Values less than gamma will have a CDF of 0.
         beta: The shape parameter (β > 0). Also known as k.
         eta: The scale parameter (η > 0). Also known as lambda (λ).
-        gamma: The location parameter (γ). 
+        gamma: The location parameter (γ).
         Defaults to 0 for a 2-parameter Weibull.
 
     Returns:
         The CDF value(s) corresponding to x.
           A probability between 0 and 1.
-        Returns a float if x is a float, 
+        Returns a float if x is a float,
         or a NumPy array if x is a NumPy array.
 
     Raises:
@@ -132,9 +129,9 @@ def weibull_cdf(
         raise ValueError("Scale parameter eta (η) must be greater than 0.")
 
     # Convert x to a numpy array for consistent handling.
-    # We don't need to raise an error 
+    # We don't need to raise an error
     # if x < gamma here, because the CDF is well-defined
-    # as 0 for x < gamma. SciPy's cdf 
+    # as 0 for x < gamma. SciPy's cdf
     # function handles this correctly when loc=gamma.
     x_arr = np.asarray(x)
 
@@ -160,11 +157,11 @@ def weibull_sf(
     x: Union[float, np.ndarray], beta: float, eta: float, gamma: float = 0.0
 ) -> Union[float, np.ndarray]:
     """
-    Calculates the Survival Function (SF), 
+    Calculates the Survival Function (SF),
     also known as the Reliability Function R(x),
     for the 2-parameter or 3-parameter Weibull distribution.
 
-    The Survival Function, S(x) = P(T > x), 
+    The Survival Function, S(x) = P(T > x),
     gives the probability that an item
     will survive beyond time x. It is equivalent to 1 - CDF(x).
 
@@ -225,14 +222,14 @@ def weibull_hf(
     x: Union[float, np.ndarray], beta: float, eta: float, gamma: float = 0.0
 ) -> Union[float, np.ndarray]:
     """
-    Calculates the Hazard Function (HF), 
+    Calculates the Hazard Function (HF),
     also known as the instantaneous failure rate h(x) or λ(x),
-    for the 2-parameter or 3-parameter Weibull distribution 
+    for the 2-parameter or 3-parameter Weibull distribution
     using its direct mathematical formula.
 
     The Hazard Function, h(x), for Weibull is:
     - 0                      if x < gamma
-    - (β/η) * ((x-γ)/η)^(β-1) if x >= gamma 
+    - (β/η) * ((x-γ)/η)^(β-1) if x >= gamma
     (with special handling for x=gamma)
       - If x = gamma and β < 1, h(x) -> infinity.
       - If x = gamma and β = 1, h(x) = 1/η.
@@ -243,7 +240,7 @@ def weibull_hf(
            Can be a single float or a NumPy array.
         beta: The shape parameter (β > 0).
         eta: The scale parameter (η > 0).
-        gamma: The location parameter (γ). 
+        gamma: The location parameter (γ).
         Defaults to 0 for a 2-parameter Weibull.
 
     Returns:
@@ -261,7 +258,7 @@ def weibull_hf(
         raise ValueError("Scale parameter eta (η) must be a positive number.")
     if not isinstance(gamma, (int, float)):  # Added type check for gamma
         raise ValueError("Location parameter gamma (γ) must be a number.")
-    # No type check for x here as np.asarray will 
+    # No type check for x here as np.asarray will
     # handle list/scalar/array and convert later.
 
     # Convert x to a numpy array of floats for consistent calculations
@@ -278,9 +275,9 @@ def weibull_hf(
             f"Input 'x' must be a scalar or an array-like object of numbers. Error: {e}"
         )
 
-    # Initialize hazard_values as a NumPy array of floats, 
+    # Initialize hazard_values as a NumPy array of floats,
     # with the same shape as x_arr
-    # This is important if x_arr is scalar (0-d array), 
+    # This is important if x_arr is scalar (0-d array),
     # result should also be scalar later.
     hazard_values = np.zeros_like(x_arr, dtype=float)
 
@@ -288,7 +285,7 @@ def weibull_hf(
 
     # Part 1: x < gamma
     # For these values, the hazard rate is 0.
-    # The initialization to np.zeros_like already handles this, 
+    # The initialization to np.zeros_like already handles this,
     # but we can be explicit if preferred for clarity.
     mask_below_gamma = x_arr < gamma
     hazard_values[mask_below_gamma] = 0.0
@@ -314,7 +311,7 @@ def weibull_hf(
         term1 = beta / eta
         term2_base = shifted_x / eta
 
-        # term2_base here will always be > 0 
+        # term2_base here will always be > 0
         # because x_slice_above_gamma > gamma and eta > 0.
         # So, no issues with 0 to a negative power for this part.
         term2_powered = np.power(term2_base, beta - 1.0)
@@ -329,19 +326,17 @@ def weibull_hf(
         return hazard_values
 
 
-
-
-
 # pyreliabilitypro/core/distributions.py
 # (other functions and imports are here)
 
 # pyreliabilitypro/core/distributions.py
 # (other functions and imports are here)
+
 
 def weibull_fit(
     failure_times: Union[List[Union[int, float]], np.ndarray],
     fit_gamma: bool = False,
-    initial_beta: Optional[float] = None
+    initial_beta: Optional[float] = None,
 ) -> Tuple[float, float, float]:
     """
     Estimates the parameters (beta, eta, and optionally gamma) of a Weibull
@@ -381,7 +376,9 @@ def weibull_fit(
     if np.any(np.isnan(data)) or np.any(np.isinf(data)):
         raise ValueError("Input 'failure_times' must not contain NaN or Inf values.")
     if not fit_gamma and np.any(data <= 0):
-        raise ValueError("Failure times must be strictly positive for a 2-parameter Weibull fit (gamma fixed at 0).")
+        raise ValueError(
+            "Failure times must be strictly positive for a 2-parameter Weibull fit (gamma fixed at 0)."
+        )
 
     try:
         if fit_gamma:
@@ -391,7 +388,7 @@ def weibull_fit(
                 c, loc, scale = stats.weibull_min.fit(data, initial_beta)
             else:
                 c, loc, scale = stats.weibull_min.fit(data)
-            
+
             estimated_beta = c
             estimated_eta = scale
             estimated_gamma = loc
@@ -403,15 +400,19 @@ def weibull_fit(
                 c, loc, scale = stats.weibull_min.fit(data, initial_beta, floc=0.0)
             else:
                 c, loc, scale = stats.weibull_min.fit(data, floc=0.0)
-            
+
             estimated_beta = c
             estimated_eta = scale
             estimated_gamma = 0.0  # We know this was fixed, so loc returned should be 0, but we set it explicitly.
 
     except RuntimeError as e:
-        raise ValueError(f"Weibull fitting failed to converge. Error: {e}. Try checking data or providing an initial beta guess.") from e
+        raise ValueError(
+            f"Weibull fitting failed to converge. Error: {e}. Try checking data or providing an initial beta guess."
+        ) from e
     except Exception as e:
-        raise ValueError(f"An unexpected error occurred during Weibull fitting: {e}") from e
+        raise ValueError(
+            f"An unexpected error occurred during Weibull fitting: {e}"
+        ) from e
 
     # Return in our standard order: beta, eta, gamma
     return float(estimated_beta), float(estimated_eta), float(estimated_gamma)

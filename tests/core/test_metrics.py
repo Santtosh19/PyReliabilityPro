@@ -7,17 +7,20 @@ from scipy.special import gamma as gamma_function  # For test verification if ne
 
 # ---- Test Case 1: Basic Valid Input (Happy Path) ----
 
+
 def test_calculate_mttf_exponential_basic():
     failure_times = [100, 150, 200, 120, 180]
     expected_mttf = (100 + 150 + 200 + 120 + 180) / 5
     assert calculate_mttf_exponential(failure_times) == pytest.approx(expected_mttf)
 
+
 # ---- Test Case 2: Single Failure Time ----
 
+
 def test_calculate_mttf_exponential_single_value():
-    # What: Tests if the function handles a list 
+    # What: Tests if the function handles a list
     # containing just one failure time.
-    # Why: This is an "edge case" – a simple input 
+    # Why: This is an "edge case" – a simple input
     # that could sometimes be overlooked
     # or handled incorrectly if the logic isn't general enough.
     failure_times = [150.5]
@@ -27,9 +30,9 @@ def test_calculate_mttf_exponential_single_value():
 
 # ---- Test Case 3: Floating Point Numbers ----
 def test_calculate_mttf_exponential_float_values():
-    # What: Ensures the function works correctly when 
+    # What: Ensures the function works correctly when
     # failure times are floats (decimal numbers).
-    # Why: While our type hints `Union[int, float]` 
+    # Why: While our type hints `Union[int, float]`
     # allow this, it's good to explicitly test it.
     failure_times = [100.2, 150.7, 199.1]
     expected_mttf = (100.2 + 150.7 + 199.1) / 3
@@ -38,34 +41,34 @@ def test_calculate_mttf_exponential_float_values():
 
 # ---- Test Case 4: Empty List Input (Testing for Expected Errors) ----
 def test_calculate_mttf_exponential_empty_list():
-    # What: This test checks if our function 
+    # What: This test checks if our function
     # correctly raises a `ValueError` when an
-    # empty list is provided as input, 
+    # empty list is provided as input,
     # which is one of the error conditions we
-    # defined in the function's docstring 
+    # defined in the function's docstring
     # and implemented with `raise ValueError(...)`.
     # Why: It's just as important to test that our
     # error handling works as it is to test
-    # that the correct calculations happen 
+    # that the correct calculations happen
     # for valid inputs.
 
     with pytest.raises(ValueError, match="Input 'failure_times' cannot be empty."):
         # `with ... :`: This is a "context manager" block in Python.
         #  Pytest's `raises` is used as a context manager here.
-        # `pytest.raises(ExpectedExceptionType, 
+        # `pytest.raises(ExpectedExceptionType,
         #  match="optional_regex_for_message")`:
-        #  - `pytest.raises()`: This Pytest helper is 
+        #  - `pytest.raises()`: This Pytest helper is
         # specifically for testing exceptions.
         #  - `ValueError`: The first argument is the type of
         #  exception we *expect* to be raised
         #  by the code inside the `with` block.
-        #  - `match="Input 'failure_times' cannot be empty."`: 
+        #  - `match="Input 'failure_times' cannot be empty."`:
         #  This is an optional second argument.
-        #  It's a string (or a regular expression) that 
+        #  It's a string (or a regular expression) that
         #  Pytest will try to match against the
-        #  error message of the raised exception. 
+        #  error message of the raised exception.
         #  This is very useful because it verifies
-        #  not only that the *correct type* of error was raised, 
+        #  not only that the *correct type* of error was raised,
         #  but also that it was raised
         #  for the *correct reason* (as indicated by the message).
 
@@ -75,7 +78,7 @@ def test_calculate_mttf_exponential_empty_list():
 
 # ---- Test Case 5: Input with a Negative Value ----
 def test_calculate_mttf_exponential_negative_value():
-    # What: Checks if a `ValueError` is raised 
+    # What: Checks if a `ValueError` is raised
     # when a negative failure time is included.
     failure_times = [100, -50, 200]
     with pytest.raises(
@@ -86,24 +89,24 @@ def test_calculate_mttf_exponential_negative_value():
 
 # ---- Test Case 6: Input that is Not a List ----
 def test_calculate_mttf_exponential_not_a_list():
-    # What: Checks if a `TypeError` is raised 
+    # What: Checks if a `TypeError` is raised
     # when the input is not a list at all.
     failure_times = "not a list"  # type: ignore
     # We intentionally pass a string where a list is expected.
-    # `# type: ignore`: This comment tells MyPy 
+    # `# type: ignore`: This comment tells MyPy
     # (our static type checker, which we'll run later)
-    # to ignore the type error on this 
+    # to ignore the type error on this
     # specific line. We do this because,
-    # in a test, we *deliberately* want to pass 
+    # in a test, we *deliberately* want to pass
     # the wrong type to ensure
-    # our function handles it by raising a `TypeError`. 
+    # our function handles it by raising a `TypeError`.
     with pytest.raises(TypeError, match="Input 'failure_times' must be a list."):
         calculate_mttf_exponential(failure_times)
 
 
 # ---- Test Case 7: Input List with a Non-Numeric Value ----
 def test_calculate_mttf_exponential_non_numeric_in_list():
-    # What: Checks if a `TypeError` is raised if 
+    # What: Checks if a `TypeError` is raised if
     # one of the items *inside* the list is not a number.
     failure_times = [100, "oops", 200]  # type: ignore
     with pytest.raises(
@@ -116,7 +119,7 @@ def test_calculate_mttf_exponential_non_numeric_in_list():
 def test_calculate_mttf_exponential_zero_values():
     # What: Tests if the function correctly handles
     # cases where failure times are zero.
-    # Why: Zero is a valid non-negative number. 
+    # Why: Zero is a valid non-negative number.
     # The MTTF of items that fail instantly is 0.
     # This is another simple edge case.
     failure_times = [0, 0, 0]
@@ -127,6 +130,7 @@ def test_calculate_mttf_exponential_zero_values():
 # ------------------------------------------------------------------------------------------------------
 
 # --- Test cases for weibull_mttf ---
+
 
 # 1. Test case: Beta = 1 (should match exponential behavior: MTTF = gamma + eta)
 def test_weibull_mttf_beta_equals_1():
@@ -206,4 +210,3 @@ def test_weibull_mttf_invalid_eta():
         ValueError, match="Scale parameter eta \\(η\\) must be greater than 0."
     ):
         weibull_mttf(beta=2, eta=-10)
-

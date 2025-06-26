@@ -7,11 +7,11 @@ from .distributions import weibull_pdf, weibull_cdf, weibull_sf, weibull_hf, wei
 
 from .metrics import calculate_mttf_exponential, weibull_mttf
 
-# You can define what gets imported when 
+# You can define what gets imported when
 # a user does 'from pyreliabilitypro.core import *'
 # It's generally good practice to be
 #  explicit with __all__ if you use 'import *',
-# though direct imports like 
+# though direct imports like
 # 'from pyreliabilitypro.core import weibull_pdf' are preferred.
 __all__ = [
     "weibull_pdf",
