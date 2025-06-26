@@ -46,7 +46,7 @@ jobs:
       # After you confirm TestPyPI works, you will comment out the step above
       # and uncomment this one for your real release.
       - name: Publish package to PyPI
-         uses: pypa/gh-action-pypi-publish@release/v1
-         with:
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
            # Use the API token for the real PyPI stored as a GitHub secret
            password: ${{ secrets.PYPI_API_TOKEN }}
