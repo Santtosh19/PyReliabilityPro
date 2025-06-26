@@ -1,11 +1,7 @@
-# For testing
+# requirements-dev.txt - Development and testing dependencies
+
 pytest
 pytest-cov
-
-# For linting & formatting
 flake8
-# requirements.txt
-numpy
-scipy
-black>=23.0 # Use a recent version of black
-mypy>=1.0   # Use a recent version of mypy
+black
+mypy

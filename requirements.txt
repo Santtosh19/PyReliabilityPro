@@ -1,0 +1,4 @@
+# requirements.txt - Runtime dependencies for PyReliabilityPro
+
+numpy
+scipy
